@@ -69,9 +69,9 @@ export function StoryViewer({ storyChildren, theme, onBack }: StoryViewerProps) 
   const isStreaming = status === 'streaming' || status === 'submitted'
 
   return (
-    <div className="flex flex-1 flex-col">
-      {/* Header */}
-      <div className="flex items-center gap-3 px-4 pb-2 pt-4">
+    <div className="flex h-full min-h-0 flex-1 flex-col">
+      {/* Header - fixed height */}
+      <div className="shrink-0 flex items-center gap-3 px-4 pb-2 pt-4">
         <button
           onClick={onBack}
           className="flex items-center gap-1 text-primary"
@@ -86,63 +86,66 @@ export function StoryViewer({ storyChildren, theme, onBack }: StoryViewerProps) 
         <div className="w-12" />
       </div>
 
-      {/* Story card header */}
-      <div className="mx-4 mt-2 flex items-center gap-3 rounded-t-2xl bg-card px-4 pb-3 pt-4">
-        <div className="flex items-center -space-x-2">
-          {avatars.map((emoji, i) => (
-            <div
-              key={storyChildren[i].id}
-              className="flex h-10 w-10 items-center justify-center rounded-full bg-secondary ring-2 ring-card"
-            >
-              <span className="text-xl" role="img" aria-hidden="true">
-                {emoji}
-              </span>
-            </div>
-          ))}
-        </div>
-        <div className="min-w-0 flex-1">
-          <p className="truncate font-mono text-sm font-bold text-card-foreground">
-            A story for {storyChildren.map((c) => c.name).join(' & ')}
-          </p>
-          <p className="text-xs text-muted-foreground">{theme}</p>
-        </div>
-      </div>
-
-      {/* Story content */}
+      {/* Scrollable story area */}
       <div
         ref={scrollRef}
-        className="mx-4 flex-1 overflow-y-auto rounded-b-2xl bg-card px-4 pb-6"
+        className="min-h-0 flex-1 overflow-y-auto px-4 pb-4"
       >
-        {!storyText && isStreaming && (
-          <div className="flex flex-col items-center gap-3 py-12 text-center">
-            <Moon className="h-8 w-8 animate-pulse text-primary" />
-            <p className="text-sm text-muted-foreground">
-              Weaving a magical story...
+        {/* Story card header */}
+        <div className="flex items-center gap-3 rounded-t-2xl bg-card px-4 pb-3 pt-4">
+          <div className="flex items-center -space-x-2">
+            {avatars.map((emoji, i) => (
+              <div
+                key={storyChildren[i].id}
+                className="flex h-10 w-10 items-center justify-center rounded-full bg-secondary ring-2 ring-card"
+              >
+                <span className="text-xl" role="img" aria-hidden="true">
+                  {emoji}
+                </span>
+              </div>
+            ))}
+          </div>
+          <div className="min-w-0 flex-1">
+            <p className="truncate font-mono text-sm font-bold text-card-foreground">
+              A story for {storyChildren.map((c) => c.name).join(' & ')}
             </p>
+            <p className="text-xs text-muted-foreground">{theme}</p>
           </div>
-        )}
-        {storyText && (
-          <div className="prose prose-sm max-w-none">
-            {storyText.split('\n').map((paragraph, i) =>
-              paragraph.trim() ? (
-                <p
-                  key={i}
-                  className="mb-3 leading-relaxed text-card-foreground"
-                >
-                  {paragraph}
-                </p>
-              ) : null
-            )}
-            {isStreaming && (
-              <span className="inline-block h-4 w-1 animate-pulse bg-primary" />
-            )}
-          </div>
-        )}
+        </div>
+
+        {/* Story content */}
+        <div className="rounded-b-2xl bg-card px-4 pb-6">
+          {!storyText && isStreaming && (
+            <div className="flex flex-col items-center gap-3 py-12 text-center">
+              <Moon className="h-8 w-8 animate-pulse text-primary" />
+              <p className="text-sm text-muted-foreground">
+                Weaving a magical story...
+              </p>
+            </div>
+          )}
+          {storyText && (
+            <div className="prose prose-sm max-w-none">
+              {storyText.split('\n').map((paragraph, i) =>
+                paragraph.trim() ? (
+                  <p
+                    key={i}
+                    className="mb-3 leading-relaxed text-card-foreground"
+                  >
+                    {paragraph}
+                  </p>
+                ) : null
+              )}
+              {isStreaming && (
+                <span className="inline-block h-4 w-1 animate-pulse bg-primary" />
+              )}
+            </div>
+          )}
+        </div>
       </div>
 
-      {/* Footer */}
+      {/* Footer - fixed height */}
       {!isStreaming && storyText && (
-        <div className="px-4 pb-4 pt-3">
+        <div className="shrink-0 px-4 pb-4 pt-3">
           <Button
             onClick={onBack}
             className="w-full gap-2 bg-primary py-6 text-base font-bold text-primary-foreground"
