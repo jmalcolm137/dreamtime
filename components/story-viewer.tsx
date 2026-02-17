@@ -31,28 +31,31 @@ function getUIMessageText(
 export function StoryViewer({ storyChildren, theme, onBack }: StoryViewerProps) {
   const scrollRef = useRef<HTMLDivElement>(null)
   const hasSent = useRef(false)
+  const chatId = useRef(`story-${storyChildren.map((c) => c.id).join('-')}-${Date.now()}`)
   const avatars = storyChildren.map(
     (c) => AVATARS.find((a) => a.id === c.avatar)?.emoji ?? '🐻'
   )
 
   const { messages, status, sendMessage } = useChat({
     transport,
-    id: `story-${storyChildren.map((c) => c.id).join('-')}-${Date.now()}`,
+    id: chatId.current,
   })
 
   useEffect(() => {
     if (hasSent.current) return
     hasSent.current = true
-    sendMessage({
-      text: JSON.stringify({
-        children: storyChildren.map((c) => ({
-          name: c.name,
-          age: c.age,
-          interests: c.interests,
-        })),
-        theme,
-      }),
+
+    const payload = JSON.stringify({
+      children: storyChildren.map((c) => ({
+        name: c.name,
+        age: c.age,
+        interests: c.interests,
+      })),
+      theme,
     })
+
+    console.log('[v0] Sending story request:', payload)
+    sendMessage({ text: payload })
   }, [storyChildren, theme, sendMessage])
 
   useEffect(() => {
