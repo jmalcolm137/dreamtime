@@ -11,15 +11,15 @@ import type { Screen, ChildProfile } from '@/lib/types'
 
 function AppContent() {
   const [screen, setScreen] = useState<Screen>('home')
-  const [storyChild, setStoryChild] = useState<ChildProfile | null>(null)
+  const [storyChildren, setStoryChildren] = useState<ChildProfile[]>([])
   const [storyTheme, setStoryTheme] = useState('')
   const [preselectedChildId, setPreselectedChildId] = useState<string | null>(
     null
   )
 
   const handleGenerate = useCallback(
-    (child: ChildProfile, theme: string) => {
-      setStoryChild(child)
+    (children: ChildProfile[], theme: string) => {
+      setStoryChildren(children)
       setStoryTheme(theme)
       setScreen('story')
     },
@@ -54,9 +54,9 @@ function AppContent() {
             preselectedChildId={preselectedChildId}
           />
         )}
-        {screen === 'story' && storyChild && (
+        {screen === 'story' && storyChildren.length > 0 && (
           <StoryViewer
-            child={storyChild}
+            storyChildren={storyChildren}
             theme={storyTheme}
             onBack={() => setScreen('home')}
           />

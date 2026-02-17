@@ -9,7 +9,7 @@ import { ChevronLeft, Moon } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 
 interface StoryViewerProps {
-  child: ChildProfile
+  storyChildren: ChildProfile[]
   theme: string
   onBack: () => void
 }
@@ -28,14 +28,16 @@ function getUIMessageText(
     .join('')
 }
 
-export function StoryViewer({ child, theme, onBack }: StoryViewerProps) {
+export function StoryViewer({ storyChildren, theme, onBack }: StoryViewerProps) {
   const scrollRef = useRef<HTMLDivElement>(null)
   const hasSent = useRef(false)
-  const avatar = AVATARS.find((a) => a.id === child.avatar)?.emoji ?? '🐻'
+  const avatars = storyChildren.map(
+    (c) => AVATARS.find((a) => a.id === c.avatar)?.emoji ?? '🐻'
+  )
 
   const { messages, status, sendMessage } = useChat({
     transport,
-    id: `story-${child.id}-${Date.now()}`,
+    id: `story-${storyChildren.map((c) => c.id).join('-')}-${Date.now()}`,
   })
 
   useEffect(() => {
@@ -43,13 +45,15 @@ export function StoryViewer({ child, theme, onBack }: StoryViewerProps) {
     hasSent.current = true
     sendMessage({
       text: JSON.stringify({
-        childName: child.name,
-        childAge: child.age,
-        interests: child.interests,
+        children: storyChildren.map((c) => ({
+          name: c.name,
+          age: c.age,
+          interests: c.interests,
+        })),
         theme,
       }),
     })
-  }, [child, theme, sendMessage])
+  }, [storyChildren, theme, sendMessage])
 
   useEffect(() => {
     if (scrollRef.current) {
@@ -81,14 +85,21 @@ export function StoryViewer({ child, theme, onBack }: StoryViewerProps) {
 
       {/* Story card header */}
       <div className="mx-4 mt-2 flex items-center gap-3 rounded-t-2xl bg-card px-4 pb-3 pt-4">
-        <div className="flex h-10 w-10 items-center justify-center rounded-full bg-secondary">
-          <span className="text-xl" role="img" aria-hidden="true">
-            {avatar}
-          </span>
+        <div className="flex items-center -space-x-2">
+          {avatars.map((emoji, i) => (
+            <div
+              key={storyChildren[i].id}
+              className="flex h-10 w-10 items-center justify-center rounded-full bg-secondary ring-2 ring-card"
+            >
+              <span className="text-xl" role="img" aria-hidden="true">
+                {emoji}
+              </span>
+            </div>
+          ))}
         </div>
-        <div>
-          <p className="font-mono text-sm font-bold text-card-foreground">
-            A story for {child.name}
+        <div className="min-w-0 flex-1">
+          <p className="truncate font-mono text-sm font-bold text-card-foreground">
+            A story for {storyChildren.map((c) => c.name).join(' & ')}
           </p>
           <p className="text-xs text-muted-foreground">{theme}</p>
         </div>

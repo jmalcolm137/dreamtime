@@ -20,22 +20,39 @@ export async function POST(req: Request) {
       : ''
   }
 
-  let childName = 'the child'
-  let childAge = 6
-  let interests: string[] = []
+  interface ChildData {
+    name: string
+    age: number
+    interests: string[]
+  }
+
+  let children: ChildData[] = []
   let theme = 'a magical adventure'
 
   try {
     const data = JSON.parse(userText)
-    childName = data.childName ?? childName
-    childAge = data.childAge ?? childAge
-    interests = data.interests ?? interests
+    children = data.children ?? []
     theme = data.theme ?? theme
   } catch {
     theme = userText || theme
   }
 
-  const interestsList = interests.length > 0 ? interests.join(', ') : 'adventures'
+  if (children.length === 0) {
+    children = [{ name: 'the child', age: 6, interests: ['adventures'] }]
+  }
+
+  const isSingle = children.length === 1
+  const youngestAge = Math.min(...children.map((c) => c.age))
+  const allInterests = [...new Set(children.flatMap((c) => c.interests))]
+  const interestsList = allInterests.length > 0 ? allInterests.join(', ') : 'adventures'
+  const childNames = children.map((c) => c.name)
+  const namesList = childNames.length === 1
+    ? childNames[0]
+    : childNames.slice(0, -1).join(', ') + ' and ' + childNames[childNames.length - 1]
+
+  const childDescriptions = children
+    .map((c) => `- ${c.name} (age ${c.age}, loves ${c.interests.length > 0 ? c.interests.join(', ') : 'adventures'})`)
+    .join('\n')
 
   const result = streamText({
     model: 'openai/gpt-4o-mini',
@@ -43,14 +60,16 @@ export async function POST(req: Request) {
 Your stories are warm, imaginative, and always have a gentle, positive ending that helps children feel safe and sleepy.
 You write in a soothing narrative style with vivid but calming imagery.
 Stories should be around 400-600 words, broken into short paragraphs.
-Always make the child the hero of their own story.
+Always make the ${isSingle ? 'child the hero of their own story' : 'children the heroes of the story together'}.
 Never include anything scary, violent, or inappropriate.
-Adjust vocabulary and complexity to be appropriate for the child's age.`,
-    prompt: `Write a bedtime story for ${childName}, who is ${childAge} years old.
-${childName} loves: ${interestsList}.
+Adjust vocabulary and complexity to be appropriate for age ${youngestAge}.`,
+    prompt: `Write a bedtime story featuring ${isSingle ? 'this child' : 'these children as the main characters together'}:
+${childDescriptions}
+
+Their combined interests include: ${interestsList}.
 The theme of tonight's story is: "${theme}".
 
-Make ${childName} the main character. Weave their interests naturally into the adventure.
+Make ${namesList} the main ${isSingle ? 'character' : 'characters'}. Weave their individual interests naturally into the adventure${!isSingle ? ', showing them working together and supporting each other' : ''}.
 End the story on a cozy, sleepy note that encourages sweet dreams.`,
   })
 

@@ -10,7 +10,7 @@ import { Textarea } from '@/components/ui/textarea'
 
 interface StoryCreatorProps {
   onBack: () => void
-  onGenerate: (child: ChildProfile, theme: string) => void
+  onGenerate: (children: ChildProfile[], theme: string) => void
   preselectedChildId?: string | null
 }
 
@@ -20,16 +20,22 @@ export function StoryCreator({
   preselectedChildId,
 }: StoryCreatorProps) {
   const { children } = useChildren()
-  const [selectedChild, setSelectedChild] = useState<string>(
-    preselectedChildId ?? children[0]?.id ?? ''
+  const [selectedChildren, setSelectedChildren] = useState<string[]>(
+    preselectedChildId ? [preselectedChildId] : children.length > 0 ? [children[0].id] : []
   )
   const [theme, setTheme] = useState('')
 
   const getAvatar = (id: string) =>
     AVATARS.find((a) => a.id === id)?.emoji ?? '🐻'
 
-  const child = children.find((c) => c.id === selectedChild)
-  const canGenerate = child && theme.trim().length > 0
+  const toggleChild = (id: string) => {
+    setSelectedChildren((prev) =>
+      prev.includes(id) ? prev.filter((c) => c !== id) : [...prev, id]
+    )
+  }
+
+  const selectedProfiles = children.filter((c) => selectedChildren.includes(c.id))
+  const canGenerate = selectedProfiles.length > 0 && theme.trim().length > 0
 
   return (
     <div className="flex flex-1 flex-col">
@@ -67,36 +73,52 @@ export function StoryCreator({
           <>
             <div className="flex flex-col gap-2">
               <label className="text-sm font-medium text-muted-foreground">
-                Choose a child
+                Choose children
+                <span className="ml-1 text-xs font-normal text-muted-foreground/70">
+                  (select one or more)
+                </span>
               </label>
               <div className="flex gap-3 overflow-x-auto pb-1">
-                {children.map((c) => (
-                  <button
-                    key={c.id}
-                    onClick={() => setSelectedChild(c.id)}
-                    className={`flex flex-shrink-0 flex-col items-center gap-2 rounded-2xl p-4 transition-all ${
-                      selectedChild === c.id
-                        ? 'bg-primary/20 ring-2 ring-primary'
-                        : 'bg-card'
-                    }`}
-                    aria-pressed={selectedChild === c.id}
-                    aria-label={`Select ${c.name}`}
-                  >
-                    <div className="flex h-12 w-12 items-center justify-center rounded-full bg-secondary">
-                      <span
-                        className="text-2xl"
-                        role="img"
-                        aria-hidden="true"
-                      >
-                        {getAvatar(c.avatar)}
+                {children.map((c) => {
+                  const isSelected = selectedChildren.includes(c.id)
+                  return (
+                    <button
+                      key={c.id}
+                      onClick={() => toggleChild(c.id)}
+                      className={`relative flex flex-shrink-0 flex-col items-center gap-2 rounded-2xl p-4 transition-all ${
+                        isSelected
+                          ? 'bg-primary/20 ring-2 ring-primary'
+                          : 'bg-card'
+                      }`}
+                      aria-pressed={isSelected}
+                      aria-label={`${isSelected ? 'Deselect' : 'Select'} ${c.name}`}
+                    >
+                      {isSelected && (
+                        <div className="absolute -right-1 -top-1 flex h-5 w-5 items-center justify-center rounded-full bg-primary text-xs font-bold text-primary-foreground">
+                          {'✓'}
+                        </div>
+                      )}
+                      <div className="flex h-12 w-12 items-center justify-center rounded-full bg-secondary">
+                        <span
+                          className="text-2xl"
+                          role="img"
+                          aria-hidden="true"
+                        >
+                          {getAvatar(c.avatar)}
+                        </span>
+                      </div>
+                      <span className="text-xs font-medium text-foreground">
+                        {c.name}
                       </span>
-                    </div>
-                    <span className="text-xs font-medium text-foreground">
-                      {c.name}
-                    </span>
-                  </button>
-                ))}
+                    </button>
+                  )
+                })}
               </div>
+              {selectedProfiles.length > 1 && (
+                <p className="text-xs text-primary">
+                  {selectedProfiles.map((c) => c.name).join(', ')} will star together
+                </p>
+              )}
             </div>
 
             {/* Theme */}
@@ -140,7 +162,7 @@ export function StoryCreator({
 
             {/* Generate button */}
             <Button
-              onClick={() => child && canGenerate && onGenerate(child, theme)}
+              onClick={() => canGenerate && onGenerate(selectedProfiles, theme)}
               disabled={!canGenerate}
               className="mt-auto gap-2 bg-primary py-6 text-base font-bold text-primary-foreground disabled:opacity-40"
             >
