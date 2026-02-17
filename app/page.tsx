@@ -32,9 +32,9 @@ function AppContent() {
   }, [])
 
   return (
-    <div className="relative mx-auto flex h-dvh w-full max-w-md flex-col overflow-hidden bg-background">
+    <div className="relative mx-auto flex h-dvh w-full max-w-md flex-col bg-background">
       <StarField />
-      <div className="relative z-10 flex flex-1 flex-col overflow-hidden">
+      <div className="relative z-10 flex min-h-0 flex-1 flex-col">
         {screen === 'home' && (
           <HomeScreen
             onNavigate={(s) => {
