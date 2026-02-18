@@ -2,7 +2,15 @@ import { streamText } from 'ai'
 import { createOpenAI } from '@ai-sdk/openai'
 
 function getModel() {
-  // Use direct OpenAI API key if available (works locally and deployed)
+  // DeepSeek (OpenAI-compatible API)
+  if (process.env.DEEPSEEK_API_KEY) {
+    const deepseek = createOpenAI({
+      apiKey: process.env.DEEPSEEK_API_KEY,
+      baseURL: 'https://api.deepseek.com',
+    })
+    return deepseek('deepseek-chat')
+  }
+  // Direct OpenAI API key
   if (process.env.OPENAI_API_KEY) {
     const provider = createOpenAI({ apiKey: process.env.OPENAI_API_KEY })
     return provider('gpt-4o-mini')
@@ -13,10 +21,10 @@ function getModel() {
 
 export async function POST(req: Request) {
   // Check if any AI provider is configured
-  if (!process.env.OPENAI_API_KEY && !process.env.AI_GATEWAY_API_KEY) {
+  if (!process.env.DEEPSEEK_API_KEY && !process.env.OPENAI_API_KEY && !process.env.AI_GATEWAY_API_KEY) {
     return new Response(
       JSON.stringify({
-        error: 'No AI provider configured. Set OPENAI_API_KEY in your .env.local file. Get one at https://platform.openai.com/api-keys',
+        error: 'No AI provider configured. Set DEEPSEEK_API_KEY or OPENAI_API_KEY in your .env.local file.',
       }),
       { status: 500, headers: { 'Content-Type': 'application/json' } }
     )
