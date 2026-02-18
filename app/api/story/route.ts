@@ -20,6 +20,10 @@ function getModel() {
 }
 
 export async function POST(req: Request) {
+  console.log('[v0] ENV CHECK - DEEPSEEK_API_KEY set:', !!process.env.DEEPSEEK_API_KEY)
+  console.log('[v0] ENV CHECK - OPENAI_API_KEY set:', !!process.env.OPENAI_API_KEY)
+  console.log('[v0] ENV CHECK - AI_GATEWAY_API_KEY set:', !!process.env.AI_GATEWAY_API_KEY)
+
   // Check if any AI provider is configured
   if (!process.env.DEEPSEEK_API_KEY && !process.env.OPENAI_API_KEY && !process.env.AI_GATEWAY_API_KEY) {
     return new Response(
