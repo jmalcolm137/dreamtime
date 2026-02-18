@@ -1,4 +1,14 @@
-import { streamText, convertToModelMessages } from 'ai'
+import { streamText } from 'ai'
+import { openai } from '@ai-sdk/openai'
+
+function getModel() {
+  // Use OpenAI directly if OPENAI_API_KEY is set (for local dev),
+  // otherwise use Vercel AI Gateway
+  if (process.env.OPENAI_API_KEY) {
+    return openai('gpt-4o-mini')
+  }
+  return 'openai/gpt-4o-mini' as const
+}
 
 export async function POST(req: Request) {
   const { messages } = await req.json()
@@ -55,7 +65,7 @@ export async function POST(req: Request) {
     .join('\n')
 
   const result = streamText({
-    model: 'openai/gpt-4o-mini',
+    model: getModel(),
     system: `You are a master storyteller who writes enchanting, age-appropriate bedtime stories for children. 
 Your stories are warm, imaginative, and always have a gentle, positive ending that helps children feel safe and sleepy.
 You write in a soothing narrative style with vivid but calming imagery.

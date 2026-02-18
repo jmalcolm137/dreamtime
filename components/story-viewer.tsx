@@ -68,11 +68,7 @@ export function StoryViewer({ storyChildren, theme, onBack }: StoryViewerProps) 
   const storyText = assistantMessage ? getUIMessageText(assistantMessage) : ''
   const isStreaming = status === 'streaming' || status === 'submitted'
 
-  console.log('[v0] useChat status:', status)
-  console.log('[v0] messages count:', messages.length)
-  console.log('[v0] assistantMessage:', JSON.stringify(assistantMessage, null, 2))
-  console.log('[v0] storyText length:', storyText.length)
-  console.log('[v0] storyText preview:', storyText.substring(0, 100))
+
 
   return (
     <div className="flex h-full min-h-0 flex-1 flex-col">
