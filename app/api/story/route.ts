@@ -1,16 +1,12 @@
 import { streamText } from 'ai'
-import { createOpenAICompatible } from '@ai-sdk/openai-compatible'
+import { createDeepSeek } from '@ai-sdk/deepseek'
 import { createOpenAI } from '@ai-sdk/openai'
 
 function getModel() {
-  // DeepSeek (via OpenAI-compatible provider)
+  // DeepSeek
   if (process.env.DEEPSEEK_API_KEY) {
-    const deepseek = createOpenAICompatible({
-      name: 'deepseek',
-      baseURL: 'https://api.deepseek.com/v1',
-      headers: {
-        Authorization: `Bearer ${process.env.DEEPSEEK_API_KEY}`,
-      },
+    const deepseek = createDeepSeek({
+      apiKey: process.env.DEEPSEEK_API_KEY,
     })
     return deepseek('deepseek-chat')
   }
