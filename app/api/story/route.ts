@@ -1,12 +1,13 @@
 import { streamText } from 'ai'
-import { openai } from '@ai-sdk/openai'
+import { createOpenAI } from '@ai-sdk/openai'
 
 function getModel() {
-  // Use OpenAI directly if OPENAI_API_KEY is set (for local dev),
-  // otherwise use Vercel AI Gateway
+  // Use direct OpenAI API key if available (works locally and deployed)
   if (process.env.OPENAI_API_KEY) {
-    return openai('gpt-4o-mini')
+    const provider = createOpenAI({ apiKey: process.env.OPENAI_API_KEY })
+    return provider('gpt-4o-mini')
   }
+  // Fall back to Vercel AI Gateway string (only works in Vercel environment)
   return 'openai/gpt-4o-mini' as const
 }
 
@@ -15,7 +16,7 @@ export async function POST(req: Request) {
   if (!process.env.OPENAI_API_KEY && !process.env.AI_GATEWAY_API_KEY) {
     return new Response(
       JSON.stringify({
-        error: 'No AI provider configured. Set OPENAI_API_KEY in your .env.local file.',
+        error: 'No AI provider configured. Set OPENAI_API_KEY in your .env.local file. Get one at https://platform.openai.com/api-keys',
       }),
       { status: 500, headers: { 'Content-Type': 'application/json' } }
     )
