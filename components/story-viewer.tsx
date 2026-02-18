@@ -36,7 +36,7 @@ export function StoryViewer({ storyChildren, theme, onBack }: StoryViewerProps) 
     (c) => AVATARS.find((a) => a.id === c.avatar)?.emoji ?? '🐻'
   )
 
-  const { messages, status, sendMessage } = useChat({
+  const { messages, status, sendMessage, error } = useChat({
     transport,
     id: chatId.current,
   })
@@ -54,7 +54,6 @@ export function StoryViewer({ storyChildren, theme, onBack }: StoryViewerProps) 
       theme,
     })
 
-    console.log('[v0] Sending story request:', payload)
     sendMessage({ text: payload })
   }, [storyChildren, theme, sendMessage])
 
@@ -117,6 +116,23 @@ export function StoryViewer({ storyChildren, theme, onBack }: StoryViewerProps) 
 
         {/* Story content */}
         <div className="rounded-b-2xl bg-card px-4 pb-6">
+          {status === 'error' && (
+            <div className="flex flex-col items-center gap-3 py-12 text-center">
+              <p className="text-sm font-medium text-destructive">
+                Something went wrong
+              </p>
+              <p className="text-xs text-muted-foreground">
+                {error?.message || 'Could not generate story. Make sure OPENAI_API_KEY is set in your .env.local file and restart the dev server.'}
+              </p>
+              <Button
+                onClick={onBack}
+                variant="outline"
+                className="mt-2 border-border text-foreground"
+              >
+                Go Back
+              </Button>
+            </div>
+          )}
           {!storyText && isStreaming && (
             <div className="flex flex-col items-center gap-3 py-12 text-center">
               <Moon className="h-8 w-8 animate-pulse text-primary" />

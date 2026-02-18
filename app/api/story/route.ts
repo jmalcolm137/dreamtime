@@ -11,6 +11,18 @@ function getModel() {
 }
 
 export async function POST(req: Request) {
+  // Check if any AI provider is configured
+  if (!process.env.OPENAI_API_KEY && !process.env.AI_GATEWAY_API_KEY) {
+    return new Response(
+      JSON.stringify({
+        error: 'No AI provider configured. Set OPENAI_API_KEY in your .env.local file.',
+      }),
+      { status: 500, headers: { 'Content-Type': 'application/json' } }
+    )
+  }
+
+  try {
+
   const { messages } = await req.json()
 
   // Extract the user's message text which contains JSON with child info
@@ -84,4 +96,14 @@ End the story on a cozy, sleepy note that encourages sweet dreams.`,
   })
 
   return result.toUIMessageStreamResponse()
+
+  } catch (error) {
+    console.error('Story generation error:', error)
+    return new Response(
+      JSON.stringify({
+        error: error instanceof Error ? error.message : 'Failed to generate story',
+      }),
+      { status: 500, headers: { 'Content-Type': 'application/json' } }
+    )
+  }
 }
