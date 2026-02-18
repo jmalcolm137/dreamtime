@@ -2,11 +2,12 @@ import { streamText } from 'ai'
 import { createOpenAI } from '@ai-sdk/openai'
 
 function getModel() {
-  // DeepSeek (OpenAI-compatible API)
+  // DeepSeek (OpenAI-compatible API - must use 'compatible' mode for /chat/completions)
   if (process.env.DEEPSEEK_API_KEY) {
     const deepseek = createOpenAI({
       apiKey: process.env.DEEPSEEK_API_KEY,
       baseURL: 'https://api.deepseek.com',
+      compatibility: 'compatible',
     })
     return deepseek('deepseek-chat')
   }
