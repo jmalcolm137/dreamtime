@@ -2,11 +2,12 @@ import { streamText } from 'ai'
 import { createOpenAI } from '@ai-sdk/openai'
 
 function getModel() {
-  // DeepSeek (OpenAI-compatible API)
+  // DeepSeek (OpenAI-compatible API - must use 'compatible' mode for /chat/completions)
   if (process.env.DEEPSEEK_API_KEY) {
     const deepseek = createOpenAI({
       apiKey: process.env.DEEPSEEK_API_KEY,
       baseURL: 'https://api.deepseek.com',
+      compatibility: 'compatible',
     })
     return deepseek('deepseek-chat')
   }
@@ -20,10 +21,6 @@ function getModel() {
 }
 
 export async function POST(req: Request) {
-  console.log('[v0] ENV CHECK - DEEPSEEK_API_KEY set:', !!process.env.DEEPSEEK_API_KEY)
-  console.log('[v0] ENV CHECK - OPENAI_API_KEY set:', !!process.env.OPENAI_API_KEY)
-  console.log('[v0] ENV CHECK - AI_GATEWAY_API_KEY set:', !!process.env.AI_GATEWAY_API_KEY)
-
   // Check if any AI provider is configured
   if (!process.env.DEEPSEEK_API_KEY && !process.env.OPENAI_API_KEY && !process.env.AI_GATEWAY_API_KEY) {
     return new Response(
