@@ -50,7 +50,7 @@ export function AddChildForm({ onSave, onCancel, editChild }: AddChildFormProps)
   const handleSubmit = () => {
     if (!name.trim() || !age) return
     onSave({
-      id: editChild?.id ?? crypto.randomUUID(),
+      id: editChild?.id ?? (Math.random().toString(36).substring(2) + Date.now().toString(36)),
       name: name.trim(),
       age: parseInt(age),
       avatar,
